@@ -79,13 +79,21 @@ Claude가 다음을 묻습니다 — 비워두면 placeholder가 유지됩니다
 
 ## Obsidian과 함께 쓰기 (강력 추천)
 
-1. [Obsidian](https://obsidian.md/) 설치 (무료, 로컬-only).
-2. Obsidian 첫 실행 → `Open folder as vault` → 이 디렉토리 선택.
-3. 우측 사이드바의 그래프 뷰로 노트 연결을 시각화. 백링크 패널로 역방향 링크 확인.
-4. 선택: Community plugin 설치
-   - **Templater** — `10-Templates/`의 `{{date:...}}` 동적 처리
-   - **Dataview** — 노트 쿼리
-   - **Obsidian Git** — 자동 백업
+`/wiki-setup`이 `scripts/setup.sh`를 호출하면 마지막 단계에서 OS별로 Obsidian을 자동 처리합니다:
+- **macOS + Homebrew**: `brew install --cask obsidian` 후 `open -a Obsidian "<vault>"` 자동 호출
+- **Linux**: 설치되어 있으면 vault 자동 열기, 아니면 설치 명령(flatpak/snap/AppImage) 안내
+- **WSL/Windows**: `winget install Obsidian.Obsidian` 명령 안내 (Windows host 자동 설치는 안 함)
+
+vault가 자동으로 안 열리면: Obsidian 첫 실행 → `Open folder as vault` → 이 디렉토리 선택 → "Trust author and enable plugins" 클릭.
+
+setup.sh가 마지막에 출력하는 plugin 추천 카드의 항목들을 Obsidian → Settings → Community plugins → Browse 에서 검색·설치:
+- **Templater** (필수) — `10-Templates/`의 `{{date:...}}` 동적 처리
+- **Dataview** — 노트 쿼리
+- **Periodic Notes** — 일일/주간 노트 자동
+- **Obsidian Git** — 자동 백업 (10분마다 commit & push)
+- 선택: Local REST API (LLM이 Obsidian 실행 상태에 접근), Tag Wrangler
+
+자동 열기를 끄려면: `OBSIDIAN_OPEN_SKIP=1 bash scripts/setup.sh`
 
 ## GitHub 백업 (강력 추천)
 

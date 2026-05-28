@@ -68,21 +68,33 @@ bash scripts/sync-workflows.sh
 
 ## Obsidian 설정
 
-### 1. Vault로 열기
-Obsidian 첫 실행 → `Open folder as vault` → 이 디렉토리 선택. "Trust author and enable plugins" 클릭 (community plugin용).
+`scripts/setup.sh`의 마지막 단계 `[5/5]`가 OS별로 자동 처리합니다:
+
+| OS | 자동화 |
+|---|---|
+| **macOS** | Homebrew 있으면 `brew install --cask obsidian` 후 `open -a Obsidian "<vault>"` 자동 호출 |
+| **Linux** | Obsidian 깔려있으면 vault 자동 열기, 없으면 flatpak/snap/AppImage 명령 안내 |
+| **WSL/Windows** | `winget install Obsidian.Obsidian` 명령 안내만 (Windows host 자동 설치는 안 함) |
+
+자동 설치가 실패하거나 안내만 받았다면 https://obsidian.md/download 에서 받으세요.
+
+`OBSIDIAN_OPEN_SKIP=1 bash scripts/setup.sh` 로 자동 열기를 비활성화할 수 있습니다 (CI/headless 환경).
+
+### 1. Vault로 열기 (수동 fallback)
+자동 열기가 실패했거나 직접 열고 싶으면: Obsidian 첫 실행 → `Open folder as vault` → 이 디렉토리 선택 → "Trust author and enable plugins" 클릭.
 
 ### 2. 추천 community plugin
 
-Settings → Community plugins → Browse:
+`setup.sh`의 마지막 출력에 추천 카드가 나옵니다. Obsidian → `Settings (⌘,)` → `Community plugins` → `Turn on community plugins` → `Browse`에서 검색·설치:
 
 | 플러그인 | 용도 | 필수도 |
 |---|---|---|
-| **Templater** | `{{date:...}}` 동적 처리 | 강력 추천 |
-| **Dataview** | 노트 쿼리 (MOC·Daily 합성에 유용) | 추천 |
+| **Templater** | `{{date:...}}` 동적 처리 | 필수 |
+| **Dataview** | 노트 쿼리 (MOC·Daily 합성에 유용) | 강력 추천 |
 | **Periodic Notes** | 일일/주간 노트 자동 생성 | 추천 |
-| **Obsidian Git** | 자동 백업 | 추천 |
+| **Obsidian Git** | 자동 백업 (10분마다 commit & push) | 추천 |
 | **Tag Wrangler** | 태그 관리 | 선택 |
-| **Local REST API** | MCP 연결 (Phase 2) | 선택 |
+| **Local REST API** | MCP 연결 (LLM이 Obsidian 실행 상태 접근) | 선택 |
 
 ### 3. Templater 폴더 지정
 설치 후: Settings → Templater → Template folder location = `10-Templates`

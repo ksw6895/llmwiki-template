@@ -42,9 +42,10 @@ bash "$VAULT_ROOT/scripts/setup.sh"
 - `log.md`에 init/create/refactor 라인 append
 
 스크립트 출력에서 다음이 보이면 성공:
-- `[2/4] 글로벌 슬래시 명령 등록...` 뒤에 `(9 links, prefix=wiki-)`
-- `[3/4] 오늘 일일 노트 ...` (생성 또는 이미 존재)
-- `[4/4] log.md 갱신 완료`
+- `[2/5] 글로벌 슬래시 명령 등록...` 뒤에 `(9 links, prefix=wiki-)`
+- `[3/5] 오늘 일일 노트 ...` (생성 또는 이미 존재)
+- `[4/5] log.md 갱신 완료`
+- `[5/5] Obsidian 감지 / 자동 설치 / vault 열기...` — OS별로 Obsidian 자동 설치(macOS+brew) 및 vault 자동 열기 시도. 마지막에 community plugin 추천 카드 출력.
 
 > **왜 LLM이 Edit으로 직접 안 하고 셸 스크립트로 위임?**
 > placeholder 치환은 8개 파일에서 일어나며, Edit 도구는 매 파일마다 사용자 승인을 요청합니다. setup.sh는 단일 Bash 호출로 처리해 친구의 마찰을 줄입니다. 스크립트 자체는 vault root 안에서만 동작하며 외부 경로를 건드리지 않습니다.
@@ -70,6 +71,10 @@ VAULT_ROOT: <VAULT_ROOT>
 사용자 프로필: <응답 있으면 갱신된 항목 요약, 없으면 "건너뜀 — AGENTS.md §9를 직접 편집해도 됩니다">
 글로벌 슬래시 명령: 9개 심링크 (Claude Code + Codex)
 오늘 일일 노트: 01-Daily/<YYYY-MM-DD>.md (생성 또는 이미 존재)
+Obsidian: setup.sh가 OS별로 자동 처리 시도 — 결과는 스크립트의 [5/5] 출력 줄 확인.
+  · macOS + Homebrew: brew로 자동 설치 + vault 자동 열기
+  · Linux: 깔려있으면 자동 열기, 아니면 설치 명령 안내
+  · WSL/Windows: winget 명령 안내만 (Windows host 자동 설치는 안 함)
 
 다음 시도:
   /wiki-daily              # 오늘 일일 노트
@@ -77,7 +82,8 @@ VAULT_ROOT: <VAULT_ROOT>
   /wiki-clip <URL>         # 웹 클립 정리
   /wiki-moc <topic>        # 토픽 MOC 만들기
 
-Obsidian에서 이 폴더(<VAULT_ROOT>)를 vault로 열어두면 노트 그래프·백링크가 시각화됩니다.
+Obsidian이 열렸으면 setup.sh가 출력한 plugin 추천 카드의 항목들을
+Settings → Community plugins → Browse 에서 검색·설치하세요 (Templater 필수).
 ```
 
 > **재실행 안전**: `/wiki-setup`을 다시 호출해도 placeholder 재치환, 글로벌 심링크 갱신, 누락된 로그 추가만 일어납니다. 이미 채워진 프로필이나 기존 daily는 보존됩니다. vault 폴더를 옮긴 직후에 재실행하면 옛 절대경로가 자동으로 새 경로로 마이그레이션됩니다.

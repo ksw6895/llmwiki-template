@@ -63,7 +63,7 @@ claude   # 또는 codex
 - 8개 노트 템플릿 (`10-Templates/`)
 - 9개 슬래시 명령 (`/wiki-setup`, `/wiki-daily`, `/wiki-clip`, ...)
 - LLM 거버넌스 문서 (`AGENTS.md`) — Claude Code와 Codex가 동일하게 따름
-- Obsidian 호환 설정
+- Obsidian 자동 설치(macOS, Homebrew 있으면) + vault 자동 열기 + community plugin 추천 카드
 
 ## 자주 쓰는 명령어 (`/wiki-*`)
 
