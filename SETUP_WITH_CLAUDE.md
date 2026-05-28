@@ -2,10 +2,13 @@
 
 Claude Code가 vault 초기 설정을 자동으로 해줍니다. 사용자는 질문에 답하기만 하면 됩니다.
 
+> **Windows native(cmd / PowerShell) 사용자 주의**: git이 `.claude/commands/wiki-setup.md` 심링크를 평문 텍스트로 풀어 `/wiki-setup`이 작동하지 않습니다. **Git Bash 또는 WSL2에서 `bash scripts/setup.sh`를 사용하세요** — 셸 경로는 [SETUP.md](SETUP.md) 참고. macOS / Linux / WSL2 사용자는 이 문서대로 진행.
+
 ## 전제
 
 - [Claude Code](https://docs.claude.com/en/docs/claude-code)가 설치되어 있고 로그인되어 있어야 합니다.
 - 이 리포를 clone한 디렉토리에 있어야 합니다 (`pwd`로 확인).
+- macOS / Linux / WSL2 환경 (Windows native는 [SETUP.md](SETUP.md)로).
 
 ## 한 줄 설정
 

@@ -33,18 +33,42 @@ else
   SED_INPLACE=(-i '')
 fi
 
+# vault 이동 감지용 마커 — 옛 절대경로 추적
+MARKER="$VAULT_ROOT/.setup-vault-root"
+OLD_VAULT_ROOT=""
+if [[ -f "$MARKER" ]]; then
+  OLD_VAULT_ROOT="$(cat "$MARKER")"
+fi
+
 CHANGED=0
+MIGRATED=0
 # _workflows/*.md 치환 (setup.md는 placeholder를 문서 설명용으로 포함하므로 제외)
 for f in "$VAULT_ROOT"/_workflows/*.md "$VAULT_ROOT/AGENTS.md" "$VAULT_ROOT/CLAUDE.md"; do
   [[ -f "$f" ]] || continue
   [[ "$(basename "$f")" == "setup.md" ]] && continue
+
+  # 첫 셋업: placeholder 치환
   if grep -q "__VAULT_ROOT__" "$f"; then
     sed "${SED_INPLACE[@]}" "s|__VAULT_ROOT__|$VAULT_ROOT|g" "$f"
     CHANGED=$((CHANGED + 1))
+    continue
+  fi
+
+  # 재셋업 (vault 이동 후): 옛 절대경로 → 새 경로 마이그레이션
+  if [[ -n "$OLD_VAULT_ROOT" && "$OLD_VAULT_ROOT" != "$VAULT_ROOT" ]] && grep -qF "$OLD_VAULT_ROOT" "$f"; then
+    sed "${SED_INPLACE[@]}" "s|$OLD_VAULT_ROOT|$VAULT_ROOT|g" "$f"
+    MIGRATED=$((MIGRATED + 1))
   fi
 done
 
-echo "       치환 완료: $CHANGED 개 파일"
+# 마커 갱신 — 다음 setup이 옛 경로로 인식
+echo "$VAULT_ROOT" > "$MARKER"
+
+if (( MIGRATED > 0 )); then
+  echo "       치환: $CHANGED 개, 마이그레이션: $MIGRATED 개 ($OLD_VAULT_ROOT → $VAULT_ROOT)"
+else
+  echo "       치환 완료: $CHANGED 개 파일"
+fi
 
 # Step 2: 글로벌 슬래시 명령 등록
 echo "[2/4] 글로벌 슬래시 명령 등록..."
@@ -75,16 +99,22 @@ else
   echo "       이미 존재함, 건너뜀"
 fi
 
-# Step 4: log.md append
+# Step 4: log.md append (idempotent)
 LOG="$VAULT_ROOT/log.md"
 TS="$NOW_DATE $(date +%H:%M)"
-{
-  echo ""
-  echo "## [$TS] init | vault | initialized via scripts/setup.sh"
-  if [[ ! -f "$DAILY" ]] || ! grep -q "$TODAY" "$LOG" 2>/dev/null; then
-    echo "## [$TS] create | 01-Daily/$TODAY.md | first daily note"
-  fi
-} >> "$LOG"
+
+# init 라인: vault 최초 셋업 시 1회만
+if ! grep -q "init | vault" "$LOG" 2>/dev/null; then
+  printf '\n## [%s] init | vault | initialized via scripts/setup.sh\n' "$TS" >> "$LOG"
+elif (( MIGRATED > 0 )); then
+  # 마이그레이션 발생: refactor 라인 기록
+  printf '## [%s] refactor | vault | migrated %s → %s\n' "$TS" "$OLD_VAULT_ROOT" "$VAULT_ROOT" >> "$LOG"
+fi
+
+# create 라인: 오늘 daily가 log에 아직 안 찍혔을 때
+if [[ -f "$DAILY" ]] && ! grep -q "01-Daily/$TODAY.md" "$LOG" 2>/dev/null; then
+  printf '## [%s] create | 01-Daily/%s.md | first daily note\n' "$TS" "$TODAY" >> "$LOG"
+fi
 
 echo "[4/4] log.md 갱신 완료"
 echo ""

@@ -3,6 +3,8 @@
 Claude Code를 안 쓰거나, 셸에서 모든 걸 통제하고 싶을 때.
 Claude 자동 설정은 [SETUP_WITH_CLAUDE.md](SETUP_WITH_CLAUDE.md) 참고.
 
+> **Windows native(cmd / PowerShell) 환경**: git이 `.claude/commands/wiki-setup.md` 심링크를 평문 텍스트로 풀어 `/wiki-setup` 슬래시 명령이 깨집니다. **이 셸 경로가 정답** — Git Bash 또는 WSL2에서 아래 절차를 실행하세요. (Git for Windows를 설치하면 Git Bash가 따라옵니다.)
+
 ## TL;DR
 
 ```sh

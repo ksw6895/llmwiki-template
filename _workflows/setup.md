@@ -26,57 +26,50 @@ description: vault 초기 설정 — placeholders 치환, 글로벌 슬래시 �
 - 시간대 (기본 제안: `Asia/Seoul (KST, UTC+9). 모든 타임스탬프는 KST로.`)
 - 활동 영역 한 줄 (예: `소프트웨어 개발, 학습/리서치`)
 
-### Step 2: placeholder 치환
+### Step 2: 셸 부트스트랩 실행 (placeholder 치환 + 글로벌 sync + 첫 daily + log)
 
-다음 파일에서 placeholder 문자열을 Step 0에서 얻은 절대경로(trailing slash 없음)로 일괄 치환:
-
-- `VAULT_ROOT/_workflows/<other>.md` — 본인 자신(`setup.md`)은 **제외** (이 문서가 placeholder 자체를 설명용으로 포함하므로)
-- `VAULT_ROOT/AGENTS.md` (placeholder 없으면 변화 없음)
-- `VAULT_ROOT/CLAUDE.md` (placeholder 없으면 변화 없음)
-
-LLM이 직접 Edit 도구로 파일별로 치환하세요 (각 워크플로 파일에서 placeholder 두 군데를 절대경로로 변경). 또는 비대화형이면 `bash scripts/setup.sh`가 같은 일을 처리합니다.
-
-### Step 3: AGENTS.md 사용자 프로필 갱신
-
-`VAULT_ROOT/AGENTS.md`의 `## 9. 사용자 프로필` 섹션을 찾아 Step 1에서 받은 값으로 TODO를 치환합니다.
-
-- 사용자가 응답하지 않은 항목은 `TODO` 유지.
-- 이 섹션은 사용자가 직접 수정하기도 하므로, 이미 TODO가 아닌 값으로 채워진 항목은 **덮어쓰지 말고** 그대로 둠.
-
-### Step 4: 글로벌 슬래시 명령 등록
+Bash 도구로 다음 명령을 실행하세요:
 
 ```bash
-bash "$VAULT_ROOT/scripts/sync-workflows.sh"
+bash "$VAULT_ROOT/scripts/setup.sh"
 ```
 
-출력에서 다음을 확인:
-- `~/.claude/commands/wiki-*.md` — 9개 심링크 생성 (8개 기존 + setup)
-- `~/.codex/prompts/wiki-*.md` — 9개 심링크 생성
+이 스크립트가 다음을 idempotent하게 처리합니다 (재실행 안전):
+- `__VAULT_ROOT__` placeholder를 `_workflows/*.md`에서 절대경로로 치환 (setup.md는 자동 제외)
+- vault 이동 감지 시 `.setup-vault-root` 마커로 옛 절대경로 → 새 경로 마이그레이션
+- 글로벌 슬래시 명령 등록 — `~/.claude/commands/wiki-*.md`와 `~/.codex/prompts/wiki-*.md`에 9개씩 절대 심링크
+- 오늘 일일 노트 생성 (없으면)
+- `log.md`에 init/create/refactor 라인 append
 
-### Step 5: 첫 일일 노트 생성
+스크립트 출력에서 다음이 보이면 성공:
+- `[2/4] 글로벌 슬래시 명령 등록...` 뒤에 `(9 links, prefix=wiki-)`
+- `[3/4] 오늘 일일 노트 ...` (생성 또는 이미 존재)
+- `[4/4] log.md 갱신 완료`
 
-오늘 날짜로 `01-Daily/<YYYY-MM-DD>.md` 파일이 없으면 `10-Templates/tmpl-daily.md`를 복사해서 생성. `{{date:...}}`, `{{time:...}}`, `{{date-1d:...}}` placeholder를 실제 값으로 치환.
+> **왜 LLM이 Edit으로 직접 안 하고 셸 스크립트로 위임?**
+> placeholder 치환은 8개 파일에서 일어나며, Edit 도구는 매 파일마다 사용자 승인을 요청합니다. setup.sh는 단일 Bash 호출로 처리해 친구의 마찰을 줄입니다. 스크립트 자체는 vault root 안에서만 동작하며 외부 경로를 건드리지 않습니다.
 
-이미 존재하면 건너뜀.
+### Step 3: AGENTS.md 사용자 프로필 갱신 (Step 1에 응답이 있을 때만)
 
-### Step 6: log.md 첫 줄 append
+Step 1에서 사용자가 응답한 항목이 **한 개라도** 있으면 `VAULT_ROOT/AGENTS.md`의 `## 9. 사용자 프로필` 섹션을 Edit 도구로 갱신합니다. 전부 "건너뛰기"였다면 이 단계 완전 생략.
 
-```
-## [<YYYY-MM-DD HH:MM>] init | vault | initialized via /wiki-setup
-## [<YYYY-MM-DD HH:MM>] create | 01-Daily/<YYYY-MM-DD>.md | first daily note
-```
+각 항목은 `- **<필드명>**: TODO` 또는 `- **<필드명>**: TODO (예: ...)` 형태입니다. 치환 규칙:
 
-이미 init 라인이 있으면 두 번째 줄(daily 생성)만 append.
+- **매칭 패턴**: `: TODO` 이후 줄 끝까지 (가이드 텍스트 `(예: ...)` 포함) 전체를 새 값으로 교체.
+  - 예: `- **이름**: TODO` → `- **이름**: 홍길동`
+  - 예: `- **시간대**: TODO (예: "Asia/Seoul (KST, UTC+9). 모든 타임스탬프는 KST로.")` → `- **시간대**: Asia/Seoul (KST, UTC+9)`
+- **응답 없는 항목**: `TODO` 라인 그대로 유지.
+- **이미 채워진 항목** (TODO가 아닌 값): **절대 덮어쓰지 마세요** — 사용자가 손으로 채웠을 수 있음.
 
-### Step 7: 요약 출력
+### Step 4: 요약 출력
 
 ```
 ✅ vault 초기화 완료
 
 VAULT_ROOT: <VAULT_ROOT>
-사용자: <이름 or "프로필 미입력 — AGENTS.md §9를 직접 편집해도 됩니다">
+사용자 프로필: <응답 있으면 갱신된 항목 요약, 없으면 "건너뜀 — AGENTS.md §9를 직접 편집해도 됩니다">
 글로벌 슬래시 명령: 9개 심링크 (Claude Code + Codex)
-오늘 일일 노트: 01-Daily/<YYYY-MM-DD>.md
+오늘 일일 노트: 01-Daily/<YYYY-MM-DD>.md (생성 또는 이미 존재)
 
 다음 시도:
   /wiki-daily              # 오늘 일일 노트
@@ -86,6 +79,8 @@ VAULT_ROOT: <VAULT_ROOT>
 
 Obsidian에서 이 폴더(<VAULT_ROOT>)를 vault로 열어두면 노트 그래프·백링크가 시각화됩니다.
 ```
+
+> **재실행 안전**: `/wiki-setup`을 다시 호출해도 placeholder 재치환, 글로벌 심링크 갱신, 누락된 로그 추가만 일어납니다. 이미 채워진 프로필이나 기존 daily는 보존됩니다. vault 폴더를 옮긴 직후에 재실행하면 옛 절대경로가 자동으로 새 경로로 마이그레이션됩니다.
 
 ## 추가 입력
 

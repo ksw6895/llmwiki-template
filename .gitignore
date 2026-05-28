@@ -46,3 +46,6 @@ __pycache__/
 raw/*.zip
 raw/chatgpt-export-*/
 raw/claude-export-*/
+
+# vault root migration marker (setup.sh가 관리, 로컬 절대경로 추적)
+.setup-vault-root

@@ -25,14 +25,16 @@ rm -rf .git && git init  # 원본 history 끊기
 
 ### 그 다음: 초기 설정
 
-**Claude Code 사용자** (추천):
+> **Windows native(cmd/PowerShell) 사용자 주의**: git이 `.claude/commands/wiki-setup.md` 심링크를 평문 텍스트로 풀어 `/wiki-setup` 슬래시 명령이 깨집니다. **Git Bash 또는 WSL2**에서 `bash scripts/setup.sh`(셸 경로)를 사용하세요. macOS / Linux / WSL2 사용자는 아래 두 경로 모두 정상 작동.
+
+**Claude Code 사용자** (macOS / Linux / WSL2 추천):
 ```sh
 claude
 > /wiki-setup
 ```
 대화형으로 프로필을 묻고 모든 설정을 자동 처리합니다. 자세히는 [SETUP_WITH_CLAUDE.md](SETUP_WITH_CLAUDE.md).
 
-**Codex 또는 셸 사용자**:
+**Codex 또는 셸 사용자** (Windows native 사용자도 이 경로):
 ```sh
 bash scripts/setup.sh
 ```
