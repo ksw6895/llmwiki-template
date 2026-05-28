@@ -1,0 +1,48 @@
+# Obsidian 작업 상태 — 캐시/workspace 만 무시 (config는 추적)
+.obsidian/workspace*
+.obsidian/cache
+.obsidian/plugins/*/data.json
+.trash/
+
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+.directory
+
+# 첨부 큰 파일 (필요 시 git LFS 또는 외부 보관)
+# _attachments/*.mov
+# _attachments/*.mp4
+
+# 임시
+*.tmp
+*.swp
+*~
+
+# 비밀
+.env
+.env.*
+*.secret
+secrets/
+.claude/settings.local.json
+.codex/secrets/
+
+# 로컬 빌드/결과
+node_modules/
+.venv/
+__pycache__/
+
+# Raw export ZIPs / 압축 해제 디렉토리 (대용량 + 비공개)
+# 개별 raw/*.md (verbatim memory dump 등)는 추적
+raw/*.zip
+raw/chatgpt-export-*/
+raw/claude-export-*/
