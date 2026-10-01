@@ -1,168 +1,97 @@
-# SETUP — 수동 / 셸 설정 가이드
+# 시작하기
 
-Claude Code를 안 쓰거나, 셸에서 모든 걸 통제하고 싶을 때.
-Claude 자동 설정은 [SETUP_WITH_CLAUDE.md](SETUP_WITH_CLAUDE.md) 참고.
+이 템플릿은 Markdown 파일을 읽고 쓸 수 있는 에이전트와 함께 사용할 수 있습니다. 명령 설치·이름·이메일·전체 프로필 입력 없이 시작할 수 있습니다.
 
-> **Windows native(cmd / PowerShell) 환경**: git이 `.claude/commands/wiki-setup.md` 심링크를 평문 텍스트로 풀어 `/wiki-setup` 슬래시 명령이 깨집니다. **이 셸 경로가 정답** — Git Bash 또는 WSL2에서 아래 절차를 실행하세요. (Git for Windows를 설치하면 Git Bash가 따라옵니다.)
+## 링크에서 첫 기록까지
 
-## TL;DR
+에이전트는 사용자의 요청과 환경에 맞게 준비하세요. 링크만 받았다면 짧게 용도와 가능한 활용을 소개하고 시작 의사를 확인합니다. 사용자가 시작을 요청했다면 저장 위치와 첫 용도처럼 아직 필요한 선택만 확인하세요. 기존 위키가 있다면 새 빈 위키를 만들기 전에 해당 위치와 보존할 내용을 확인합니다.
+
+개인용 사본은 GitHub의 **Use this template**으로 만들거나 로컬 폴더에 복사할 수 있습니다. 저장소 URL을 읽는 것만으로 로컬 작업 공간이 준비되지는 않습니다. 파일 접근이 없는 환경에서는 시작 방법이나 저장할 Markdown을 제공하고, 실제 파일을 만들었다고 보고하지 마세요.
 
 ```sh
-git clone https://github.com/ksw6895/llmwiki-template.git ~/Documents/MyVault
+git clone https://github.com/<your-username>/<your-vault>.git ~/Documents/MyVault
 cd ~/Documents/MyVault
-rm -rf .git && git init   # 원본 history 끊기 (선택)
-bash scripts/setup.sh     # 자동: placeholder 치환 + 글로벌 슬래시 명령 + 첫 daily
 ```
 
-설정 후 어디서든:
-```sh
-claude   # 또는 codex
-> /wiki-daily
-```
+메모·회의록·자료 하나를 정리하는 것은 첫 사용의 한 예입니다. 처음부터 루틴 설정을 요청했다면 첫 기록을 요구하지 않고 그 목적을 바로 처리하세요. 이름과 이메일은 필요하지 않습니다. 사용자가 정한 선호만 `preferences.md`에 남기고, 원본·출처·사용자 내용 보호는 [AGENTS.md](AGENTS.md)를 따릅니다. 기존 위키의 `AGENTS.md`에 프로필이 있다면 재입력시키지 말고 그 값을 참고하세요.
 
-## 무엇을 자동으로 처리하나요?
+예시:
 
-`scripts/setup.sh`는 다음을 순서대로 실행합니다.
+> 사용자: 개발하면서 배운 걸 잊지 않으려고 이 위키를 쓰고 싶어.
+>
+> 에이전트: 저장 위치를 정해 위키를 준비합니다. “오늘 배운 메모 하나를 알려주시면 첫 기록을 남기겠습니다.”
+>
+> 사용자: 메모 제공.
+>
+> 에이전트: 출처와 함께 저장하고 관련 기록이 있으면 연결합니다. “이런 메모가 쌓이면 하루 끝에 배운 점과 남은 일을 모아 정리할 수 있습니다. 원할 때 ‘오늘 위키 정리해줘’라고 하세요.”
 
-### Step 1: `__VAULT_ROOT__` placeholder 치환
-`_workflows/*.md`, `AGENTS.md`, `CLAUDE.md`에서 placeholder `__VAULT_ROOT__`를 현재 디렉토리 절대경로로 일괄 치환.
+## 하루 정리와 자동화
 
-이 작업이 끝나야 LLM이 어느 cwd에서든 vault root를 정확히 찾을 수 있습니다.
+[하루 정리](_workflows/daily-review.md)는 제공되거나 접근이 허용된 자료에서 기억할 내용과 후속 작업을 모읍니다. [일일 노트](_workflows/daily.md)는 하루치 파일의 생성·열람입니다. 빈 노트 생성이 하루 정리를 수행했다는 뜻은 아닙니다.
 
-### Step 2: 글로벌 슬래시 명령 등록
-`bash scripts/sync-workflows.sh`를 호출. 다음이 생성됨:
-- `~/.claude/commands/wiki-*.md` — 9개 심링크 (Claude Code, user scope)
-- `~/.codex/prompts/wiki-*.md` — 9개 심링크 (Codex, global prompts)
+루틴은 사용 맥락에 도움이 되면 제안할 수 있습니다. “매일 해줘”라는 요청을 받으면 이미 정한 사항은 재사용하고, 아직 필요한 소스 범위·시간대·실행 시간을 확인합니다. 예약할 때는 사용하는 환경의 스케줄러 지원과 **예약 작업이 실행되는 환경**의 vault·소스 접근을 확인합니다. 실제 등록 결과가 확인된 뒤에만 예약 완료라고 보고합니다. 이 저장소는 예약 실행기를 설치하거나 포함하지 않습니다.
 
-각 심링크는 vault의 `_workflows/<name>.md`로 가는 절대 심링크. 어느 디렉토리에서 호출하든 `/wiki-*` 명령이 작동.
+스케줄러가 없으면 “오늘 위키 정리해줘”로 수동 실행할 수 있습니다. 소스 연결이 부족하면 접근 가능한 범위로 정리하거나 필요한 연결을 안내합니다. 연결되지 않은 웹 ChatGPT·Claude 대화, 다른 프로젝트·메시지를 자동으로 읽는다고 약속하지 마세요. 결과에는 실제 읽은 소스·기간과 제외/실패를 표시합니다. 자료가 없다는 것과 해당 소스에 접근하지 못했다는 것을 구분하세요.
 
-### Step 3: 첫 일일 노트
-`10-Templates/tmpl-daily.md`를 기반으로 오늘 날짜의 `01-Daily/YYYY-MM-DD.md` 생성.
+## 선택 스크립트
 
-### Step 4: log.md 첫 줄
-```
-## [YYYY-MM-DD HH:MM] init | vault | initialized via scripts/setup.sh
-## [YYYY-MM-DD HH:MM] create | 01-Daily/YYYY-MM-DD.md | first daily note
-```
+기본 `bash scripts/setup.sh`는 구조를 확인하고 안내만 출력합니다. 기존 노트·워크플로·개인 도구 설정을 변경하지 않습니다. 다음 옵션은 사용자가 선택한 경우에만 실행하세요:
 
-## 직접 한 단계씩 (셸 전문가용)
-
-### 1. placeholder 치환 직접
-```sh
-VAULT_ROOT="$(pwd)"
-find _workflows AGENTS.md CLAUDE.md -name "*.md" -type f \
-  -exec sed -i.bak "s|__VAULT_ROOT__|$VAULT_ROOT|g" {} \;
-find . -name "*.md.bak" -delete
-```
-
-### 2. 글로벌 슬래시 명령 등록
-```sh
-bash scripts/sync-workflows.sh
-```
-
-### 3. 사용자 프로필 (선택)
-`AGENTS.md`를 열어 §9 `사용자 프로필` 섹션의 `TODO`를 본인 값으로 치환.
-
-### 4. 첫 일일 노트 (선택)
-원하면 Claude로 `/wiki-daily` 한 줄. 또는 `10-Templates/tmpl-daily.md`를 손으로 복사.
-
-## Obsidian 설정
-
-`scripts/setup.sh`의 마지막 단계 `[5/5]`가 OS별로 자동 처리합니다:
-
-| OS | 자동화 |
+| 옵션 | 효과 |
 |---|---|
-| **macOS** | Homebrew 있으면 `brew install --cask obsidian` 후 `open -a Obsidian "<vault>"` 자동 호출 |
-| **Linux** | Obsidian 깔려있으면 vault 자동 열기, 없으면 flatpak/snap/AppImage 명령 안내 |
-| **WSL/Windows** | `winget install Obsidian.Obsidian` 명령 안내만 (Windows host 자동 설치는 안 함) |
+| `--daily` | 오늘 노트가 없으면 생성하고 `log.md`에 생성 이력 추가 |
+| `--timezone Asia/Seoul` | 일일 노트에 사용할 IANA 시간대. 미지정이면 시스템 시간대를 밝히고 사용 |
+| `--global-commands` | 아래 두 전역 폴더에 명령 진입 파일 생성·갱신 |
+| `--install-obsidian` | macOS에서 미설치인 경우 Homebrew 설치 시도. 다른 환경은 수동 설치 안내 |
+| `--open-obsidian` | 설치된 Obsidian에서 이 vault 열기 시도 |
+| `--dry-run` | 선택한 작업의 예정 효과만 출력. 파일 생성·설치·앱 실행 없음 |
+| `--unlink` | 이 vault가 소유한 전역 명령만 제거. 다른 실행 옵션과 함께 사용하지 않음 |
 
-자동 설치가 실패하거나 안내만 받았다면 https://obsidian.md/download 에서 받으세요.
+```sh
+bash scripts/setup.sh --daily --timezone Asia/Seoul --dry-run
+bash scripts/setup.sh --daily --timezone Asia/Seoul
+```
 
-`OBSIDIAN_OPEN_SKIP=1 bash scripts/setup.sh` 로 자동 열기를 비활성화할 수 있습니다 (CI/headless 환경).
+`--daily`는 기존 노트를 바꾸지 않습니다. 템플릿의 `{{datetime}}` 등은 스크립트나 에이전트가 실제 값으로 채우는 표기이며 Obsidian 플러그인의 실행 문법을 가정하지 않습니다. 이전 날짜 플레이스홀더도 스크립트에서 지원합니다. 예전처럼 기본 setup 한 번으로 전역 설치·앱 설치·일일 노트 생성을 모두 실행하지 않으며 각 옵션으로 선택할 수 있습니다.
 
-### 1. Vault로 열기 (수동 fallback)
-자동 열기가 실패했거나 직접 열고 싶으면: Obsidian 첫 실행 → `Open folder as vault` → 이 디렉토리 선택 → "Trust author and enable plugins" 클릭.
+## 도구별 지원과 선택 명령
 
-### 2. 추천 community plugin
+- **Codex:** `.agents/skills/wiki/SKILL.md`에서 관련 워크플로를 찾을 수 있습니다. CLI/IDE에서는 `$wiki`로 명시하거나 자연어로 요청할 수 있습니다. [공식 skills 문서](https://learn.chatgpt.com/docs/build-skills).
+- **Claude Code:** `CLAUDE.md`가 `AGENTS.md`를 import합니다. `.claude/skills/wiki`는 공통 스킬 폴더의 상대 심링크입니다. `/wiki`는 선택 진입점이고 기존 `/wiki-setup`도 유지합니다. [공식 skills 문서](https://code.claude.com/docs/en/skills).
+- **다른 에이전트·심링크 미지원 환경:** `AGENTS.md`와 관련 워크플로를 직접 읽으면 됩니다. 스킬이 안 보인다고 기본 사용이 막히지는 않습니다. Windows에서 심링크가 일반 파일로 checkout되면 자연어 경로를 사용하거나 공통 스킬 폴더를 `.claude/skills/wiki` 위치에 복사할 수 있습니다.
 
-`setup.sh`의 마지막 출력에 추천 카드가 나옵니다. Obsidian → `Settings (⌘,)` → `Community plugins` → `Turn on community plugins` → `Browse`에서 검색·설치:
+기존 전역 명령을 계속 쓰려면:
 
-| 플러그인 | 용도 | 필수도 |
+```sh
+bash scripts/setup.sh --global-commands --dry-run
+bash scripts/setup.sh --global-commands
+```
+
+이 선택은 `~/.claude/commands/wiki-*.md`와 `~/.codex/prompts/wiki-*.md`에 절대 vault 경로와 공통 본문 위치를 담은 작은 진입 파일을 만듭니다. 기존 이 vault의 심링크는 진입 파일로 바꿀 수 있습니다. 다른 vault·사용자의 파일과 충돌하면 등록을 중단합니다. 여러 vault에는 자연어로 대상 경로를 지정하거나 repo 범위 스킬을 사용하세요.
+
+| 작업 | Claude Code 전역 명령 | Codex 기존 custom prompt |
 |---|---|---|
-| **Templater** | `{{date:...}}` 동적 처리 | 필수 |
-| **Dataview** | 노트 쿼리 (MOC·Daily 합성에 유용) | 강력 추천 |
-| **Periodic Notes** | 일일/주간 노트 자동 생성 | 추천 |
-| **Obsidian Git** | 자동 백업 (10분마다 commit & push) | 추천 |
-| **Tag Wrangler** | 태그 관리 | 선택 |
-| **Local REST API** | MCP 연결 (LLM이 Obsidian 실행 상태 접근) | 선택 |
+| 하루 파일 생성·열람 | `/wiki-daily` | `/prompts:wiki-daily` |
+| 하루 자료 정리 | `/wiki-daily-review` | `/prompts:wiki-daily-review` |
+| 할 일 찾기 | `/wiki-today-todo` | `/prompts:wiki-today-todo` |
+| 자료 저장 | `/wiki-clip` | `/prompts:wiki-clip` |
 
-### 3. Templater 폴더 지정
-설치 후: Settings → Templater → Template folder location = `10-Templates`
-
-## GitHub 백업
+다른 `_workflows/<name>.md`도 같은 이름 규칙을 사용합니다. **Codex custom prompts는 deprecated**이며 명시 호출이 필요합니다. 신규 사용에는 자연어·repo 스킬을 권장합니다. 명령이 안 보이면 클라이언트 새 세션/재시작과 공식 문서를 확인하세요. [공식 custom prompts 문서](https://learn.chatgpt.com/docs/custom-prompts). 제품별 발견 위치와 호출 방식은 바뀔 수 있으므로 버전별 동작이 다르면 자연어 경로를 사용하세요.
 
 ```sh
-gh repo create my-llm-wiki --private --source=. --push
-```
-
-또는 수동:
-```sh
-git remote add origin git@github.com:<your-user>/my-llm-wiki.git
-git branch -M main
-git push -u origin main
-```
-
-**자동화**: Obsidian Git plugin을 설치하고 N분 간격 auto-commit & push 설정.
-
-## 첫 한 주 추천 루틴
-
-- **월요일 아침**: `/wiki-daily` → 한 주 계획. `/wiki-today-todo`로 자동 합성.
-- **하루 중**: 떠오르는 거 → `00-Inbox/`로 던지기 (수동 또는 `/wiki-clip`).
-- **하루 끝**: `01-Daily/<오늘>.md`의 `## 내일로 이월` 채우기.
-- **금요일 오후**: `/wiki-lint-vault` → 한 주 정리. `/wiki-moc <topic>`으로 새 MOC 만들기.
-
-## 자주 쓰는 명령어 Cheat Sheet
-
-| 상황 | 명령 (어디서든) |
-|---|---|
-| 오늘 시작 | `/wiki-daily` 또는 `/wiki-today-todo` |
-| 웹 클립 | `/wiki-clip <URL>` |
-| 회의 정리 | `/wiki-ingest-meeting <트랜스크립트>` |
-| Inbox 정리 | `/wiki-promote 00-Inbox/<file>.md` |
-| 토픽 정리 | `/wiki-moc <topic>` |
-| 학습 검증 | `/wiki-quiz <topic-or-note>` |
-| 무결성 점검 | `/wiki-lint-vault` |
-
-## 정리 / 제거
-
-이 vault를 더 이상 안 쓸 때 글로벌 심링크 제거:
-```sh
+bash scripts/setup.sh --unlink --dry-run
 bash scripts/setup.sh --unlink
 ```
 
-이후 vault 디렉토리 자체를 지우거나 archive로 옮기면 됨.
+vault를 옮겼다면 옛 경로가 적힌 전역 파일을 확인하세요. 가능하면 이전 위치에서 `--unlink`한 뒤 새 위치에서 등록합니다. 경로가 다른 파일을 자동으로 덮어쓰거나 제거하지 않습니다. `WIKI_COMMAND_HOME`으로 전역 파일의 기준 디렉토리를 별도로 지정할 수 있어 격리 시험에도 사용할 수 있습니다. 기본은 사용자 홈입니다.
 
-## 트러블슈팅
+## Obsidian과 백업은 선택
 
-**`__VAULT_ROOT__`가 그대로 보여요**
-- Setup이 안 실행됐거나 실패했을 가능성. `bash scripts/setup.sh` 재실행.
+[Obsidian](https://obsidian.md/download)에서 이 폴더를 vault로 열 수 있습니다. 기본 Markdown 사용에는 community plugin이 필요하지 않습니다. 노트 쿼리·편집기 내 템플릿·백업 등 원하는 기능이 생겼을 때 해당 플러그인 설정과 문법을 따로 확인하세요.
 
-**`/wiki-*` 명령이 안 보여요**
-- `ls -la ~/.claude/commands/wiki-*.md` 또는 `ls -la ~/.codex/prompts/wiki-*.md`로 심링크 확인.
-- 없으면 `bash scripts/sync-workflows.sh` 재실행.
+```sh
+bash scripts/setup.sh --install-obsidian --open-obsidian --dry-run
+# 설치와 실행을 원할 때만 --dry-run을 빼고 실행
+```
 
-**LLM이 엉뚱한 경로에 파일을 만들어요**
-- 워크플로의 placeholder가 안 치환된 경우. `bash scripts/setup.sh` 재실행.
-- 또는 워크플로 본문 상단의 vault root 컨텍스트 블록이 손상됐을 수도. 원본은 [github.com/ksw6895/llmwiki-template](https://github.com/ksw6895/llmwiki-template)에서 비교.
-
-**CJK 파일명에서 wikilink가 깨져요**
-- macOS APFS(NFD) vs git/Linux(NFC) 정규화 차이. ASCII slug로 rename 권장.
-
-**Obsidian Templater가 작동 안 함**
-- Settings → Templater → Template folder location = `10-Templates` 인지 확인.
-
-## 참고
-
-- [AGENTS.md](AGENTS.md) — LLM 거버넌스 컨트랙트
-- [README.md](README.md) — 전체 개요
-- [SETUP_WITH_CLAUDE.md](SETUP_WITH_CLAUDE.md) — Claude 자동 설정 흐름
+git은 로컬 이력 관리에 사용할 수 있습니다. 원격 백업을 원한다면 개인용 비공개 저장소와 업로드할 자료 범위를 선택한 뒤 연결하세요. 이 템플릿이나 setup은 자동 commit·push를 수행하지 않습니다. 자동 백업 플러그인 설정도 사용자의 별도 선택입니다.

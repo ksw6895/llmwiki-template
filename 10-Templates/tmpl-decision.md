@@ -1,7 +1,7 @@
 ---
 title: "ADR-{{date:YYYYMMDD}} — "
-created: {{date:YYYY-MM-DD}}T{{time:HH:mm:ss}}+09:00
-updated: {{date:YYYY-MM-DD}}T{{time:HH:mm:ss}}+09:00
+created: {{datetime}}
+updated: {{datetime}}
 type: decision
 tags: [decision, adr]
 status: accepted
@@ -29,4 +29,3 @@ links: []
 2. 
 
 ## 참고
-- [[]]

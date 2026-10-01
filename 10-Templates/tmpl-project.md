@@ -1,7 +1,7 @@
 ---
 title: ""
-created: {{date:YYYY-MM-DD}}T{{time:HH:mm:ss}}+09:00
-updated: {{date:YYYY-MM-DD}}T{{time:HH:mm:ss}}+09:00
+created: {{datetime}}
+updated: {{datetime}}
 type: project
 tags: [project]
 status: active
@@ -25,7 +25,5 @@ links: []
 - [ ] 
 
 ## 결정 기록 링크
-- [[]]
 
 ## 관련 노트
-- [[]]

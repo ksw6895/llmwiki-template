@@ -1,7 +1,7 @@
 ---
 title: "MOC — "
-created: {{date:YYYY-MM-DD}}T{{time:HH:mm:ss}}+09:00
-updated: {{date:YYYY-MM-DD}}T{{time:HH:mm:ss}}+09:00
+created: {{datetime}}
+updated: {{datetime}}
 type: moc
 tags: [moc]
 status: active
@@ -21,19 +21,14 @@ links: []
 ## 노트 모음
 
 ### 영구 노트
-- [[02-Notes/]]
 
 ### 프로젝트
-- [[03-Projects/]]
 
 ### 결정
-- [[09-Decisions/]]
 
 ### 외부 자료
-- [[05-Resources/]]
 
 ## 미해결 질문
 - 
 
 ## 인접 MOC
-- [[99-MOCs/]]

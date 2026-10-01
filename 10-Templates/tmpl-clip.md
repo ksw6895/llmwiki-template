@@ -1,7 +1,7 @@
 ---
 title: ""
-created: {{date:YYYY-MM-DD}}T{{time:HH:mm:ss}}+09:00
-updated: {{date:YYYY-MM-DD}}T{{time:HH:mm:ss}}+09:00
+created: {{datetime}}
+updated: {{datetime}}
 type: clip
 tags: [clip]
 status: draft
@@ -25,7 +25,7 @@ links: []
 ## 왜 클립했는가 (내 맥락과의 연결)
 > 
 
-## 핵심 내용 (3-5 bullet)
+## 핵심 내용
 - 
 
 ## 인용
@@ -35,4 +35,3 @@ links: []
 - [ ] 
 
 ## 관련 노트
-- [[]]

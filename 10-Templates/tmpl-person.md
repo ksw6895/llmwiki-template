@@ -1,7 +1,7 @@
 ---
 title: ""
-created: {{date:YYYY-MM-DD}}T{{time:HH:mm:ss}}+09:00
-updated: {{date:YYYY-MM-DD}}T{{time:HH:mm:ss}}+09:00
+created: {{datetime}}
+updated: {{datetime}}
 type: person
 tags: [person]
 status: active
@@ -30,5 +30,3 @@ links: []
 ## 내가 도와줄 수 있는 것 / 받을 수 있는 것
 
 ## 관련 노트
-- 회의: [[07-Meetings/]]
-- 프로젝트: [[03-Projects/]]

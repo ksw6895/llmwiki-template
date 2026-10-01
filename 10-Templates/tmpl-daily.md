@@ -1,28 +1,15 @@
 ---
-title: "{{date:YYYY-MM-DD ddd}}"
-created: {{date:YYYY-MM-DD}}T{{time:HH:mm:ss}}+09:00
-updated: {{date:YYYY-MM-DD}}T{{time:HH:mm:ss}}+09:00
+title: "{{date:YYYY-MM-DD}}"
+created: {{datetime}}
+updated: {{datetime}}
 type: daily
-tags: [daily]
 status: active
 ---
 
-# {{date:YYYY-MM-DD (ddd)}}
+# {{date:YYYY-MM-DD}}
 
-## 오늘의 의도
--
-
-## 잡담 / 메모
-
-## 회의 / 이벤트
-
-## 학습 / 인풋
-
-## 코드 / 작업
-
-## 슬랙 / 메시지
+## 메모
 
 ## 내일로 이월
 
-## 관련 노트
-- 어제: [[01-Daily/{{date-1d:YYYY-MM-DD}}]]
+<!-- 하루 정리를 추가할 때 실제 읽은 소스·기간과 알려진 제외/실패를 짧게 남기세요. -->

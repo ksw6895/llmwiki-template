@@ -1,7 +1,7 @@
 ---
 title: ""
-created: {{date:YYYY-MM-DD}}T{{time:HH:mm:ss}}+09:00
-updated: {{date:YYYY-MM-DD}}T{{time:HH:mm:ss}}+09:00
+created: {{datetime}}
+updated: {{datetime}}
 type: note
 tags: []
 status: draft
@@ -19,7 +19,6 @@ links: []
 
 
 ## 관련 노트
-- [[]]
 
 ## 출처
 - 

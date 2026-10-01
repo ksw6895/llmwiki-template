@@ -1,64 +1,88 @@
 #!/usr/bin/env bash
-# vault 루트 _workflows/*.md를 단일 진실 원천으로 삼고,
-# Claude Code와 Codex 양쪽의 슬래시 명령 진입점을 글로벌 절대 심링크로 동기화한다.
-#
-# 결과:
-#   ~/.claude/commands/wiki-<name>.md  →  <vault>/_workflows/<name>.md   (절대)
-#   ~/.codex/prompts/wiki-<name>.md    →  <vault>/_workflows/<name>.md   (절대)
-#
-# 사용:
-#   bash scripts/sync-workflows.sh           # 양쪽 글로벌 심링크 생성/갱신
-#   bash scripts/sync-workflows.sh --unlink  # 양쪽 심링크 제거
-
+# Optional legacy global entry points; common workflow bodies stay in the vault.
 set -euo pipefail
 
 VAULT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SRC_DIR="$VAULT_ROOT/_workflows"
-CC_DIR="$HOME/.claude/commands"
-CODEX_DIR="$HOME/.codex/prompts"
-PREFIX="wiki-"
+COMMAND_HOME="${WIKI_COMMAND_HOME:-$HOME}"
+CC_DIR="$COMMAND_HOME/.claude/commands"
+CODEX_DIR="$COMMAND_HOME/.codex/prompts"
+OWNER="<!-- llmwiki-template vault: $VAULT_ROOT -->"
+UNLINK=0
+DRY_RUN=0
 
-if [[ ! -d "$SRC_DIR" ]]; then
-  echo "ERROR: $SRC_DIR not found"
-  exit 1
-fi
+for arg in "$@"; do
+  case "$arg" in
+    --unlink) UNLINK=1 ;;
+    --dry-run) DRY_RUN=1 ;;
+    --help|-h)
+      echo "Usage: bash scripts/sync-workflows.sh [--unlink] [--dry-run]"
+      echo "Writes optional global entries under WIKI_COMMAND_HOME (default: user home)."
+      exit 0 ;;
+    *) echo "Unknown option: $arg" >&2; exit 2 ;;
+  esac
+done
+[[ -d "$SRC_DIR" ]] || { echo "Missing workflows: $SRC_DIR" >&2; exit 1; }
 
-mkdir -p "$CC_DIR" "$CODEX_DIR"
+# Only replace/remove entries demonstrably owned by this vault. Includes old symlinks.
+owned_entry() {
+  local entry="$1" source="$2" first=""
+  if [[ -L "$entry" ]]; then
+    [[ "$(readlink "$entry")" == "$source" ]]
+  elif [[ -f "$entry" ]]; then
+    first="$(sed -n '4p' "$entry")"
+    [[ "$first" == "$OWNER" ]]
+  else
+    return 1
+  fi
+}
 
-if [[ "${1:-}" == "--unlink" ]]; then
-  for f in "$SRC_DIR"/*.md; do
-    name="$(basename "$f")"
-    for link in "$CC_DIR/${PREFIX}${name}" "$CODEX_DIR/${PREFIX}${name}"; do
-      if [[ -L "$link" ]]; then
-        rm "$link"
-        echo "unlinked: $link"
+# Preflight the complete set so conflicts do not cause a partial installation.
+if (( ! UNLINK )); then
+  conflicts=0
+  for source in "$SRC_DIR"/*.md; do
+    name="$(basename "$source")"
+    for dir in "$CC_DIR" "$CODEX_DIR"; do
+      entry="$dir/wiki-$name"
+      if [[ -e "$entry" || -L "$entry" ]] && ! owned_entry "$entry" "$source"; then
+        echo "Conflict, leaving existing entry unchanged: $entry" >&2
+        conflicts=$((conflicts + 1))
       fi
     done
   done
-  exit 0
+  (( conflicts == 0 )) || exit 1
 fi
 
-count_cc=0
-count_codex=0
-
-for f in "$SRC_DIR"/*.md; do
-  name="$(basename "$f")"
-
-  # Claude Code: 글로벌 user scope, 절대 심링크
-  cc_link="$CC_DIR/${PREFIX}${name}"
-  ln -sfn "$f" "$cc_link"
-  count_cc=$((count_cc + 1))
-
-  # Codex: 글로벌 prompts, 절대 심링크
-  codex_link="$CODEX_DIR/${PREFIX}${name}"
-  ln -sfn "$f" "$codex_link"
-  count_codex=$((count_codex + 1))
+for source in "$SRC_DIR"/*.md; do
+  name="$(basename "$source")"
+  for dir in "$CC_DIR" "$CODEX_DIR"; do
+    entry="$dir/wiki-$name"
+    if (( UNLINK )); then
+      if owned_entry "$entry" "$source"; then
+        if (( ! DRY_RUN )); then rm "$entry"; fi
+        echo "Remove owned entry: $entry"
+      elif [[ -e "$entry" || -L "$entry" ]]; then
+        echo "Keep foreign entry: $entry"
+      fi
+    else
+      echo "Register entry: $entry -> $source"
+      if (( ! DRY_RUN )); then
+        mkdir -p "$dir"
+        tmp="$(mktemp "$dir/.wiki-entry.XXXXXX")"
+        # $ARGUMENTS remains literal until the host expands the command/prompt.
+        {
+          printf '%s\n' '---'
+          sed -n '/^description: /p' "$source"
+          printf '%s\n' '---' "$OWNER" '' "Vault root: $VAULT_ROOT" \
+            "Read $VAULT_ROOT/AGENTS.md and the relevant guidance at $source." \
+            'Resolve vault-relative paths against the root above.' '' \
+            'User input: $ARGUMENTS'
+        } > "$tmp"
+        mv -f "$tmp" "$entry"
+      fi
+    fi
+  done
 done
 
-echo "동기화 완료"
-echo "   Claude Code: $CC_DIR ($count_cc links, prefix=${PREFIX})"
-echo "   Codex      : $CODEX_DIR ($count_codex links, prefix=${PREFIX})"
-echo ""
-echo "사용법 (어디서든):"
-echo "  claude   # /wiki-setup, /wiki-clip, /wiki-daily, /wiki-today-todo, ..."
-echo "  codex    # /wiki-setup, /wiki-clip, /wiki-daily, /wiki-today-todo, ..."
+echo "Claude Code: /wiki-<name>; Codex legacy prompt: /prompts:wiki-<name>"
+echo "Natural language and the repo wiki skill do not require these global entries."

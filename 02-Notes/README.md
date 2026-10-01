@@ -1,8 +1,5 @@
 # 02-Notes
 
-영구 원자 노트 (Zettelkasten 스타일). 시간성을 갖지 않는 재사용 가능한 개념·정의·인사이트.
+재사용할 개념·정의·인사이트를 남깁니다. 기본 파일명은 ASCII slug입니다(예: `auth-token-refresh.md`).
 
-- 명명: ASCII slug, 날짜 prefix 없음 (예: `auth-token-refresh.md`)
-- 한 노트 = 한 개념. 여러 개념이 섞이면 원자 단위로 분리.
-- `## 관련 노트` 섹션에 양방향 wikilink를 적어도 1개 이상.
-- Inbox에서 승격할 때 `/wiki-promote`가 자동으로 frontmatter 갱신·링크 제안을 합니다.
+한 기록의 초점이 분명하면 나중에 다시 찾기 쉽습니다. 여러 개념의 분리나 관련 기록 연결은 자료에 맞게 선택하고, 링크 개수를 채우기 위한 빈 링크를 만들지 않습니다. Inbox 정리는 [promote 워크플로](../_workflows/promote.md)를 참고할 수 있습니다.
