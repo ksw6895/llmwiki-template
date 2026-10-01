@@ -6,7 +6,7 @@ status: active
 
 # Vault Index
 
-[llmwiki-template](https://github.com/ksw6895/llmwiki-template)에서 시작한 위키입니다. 첫 사용은 [SETUP.md](SETUP.md), 공통 지침은 [AGENTS.md](AGENTS.md), 사용자가 정한 선호는 [preferences.md](preferences.md)에 있습니다.
+[llmwiki-template](https://github.com/ksw6895/llmwiki-template)에서 시작한 위키입니다. 사용 안내는 [README.md](README.md), 에이전트 실행 참고는 [SETUP.md](SETUP.md), 공통 지침은 [AGENTS.md](AGENTS.md), 사용자가 정한 선호는 [preferences.md](preferences.md)에 있습니다.
 
 ## 오늘
 
