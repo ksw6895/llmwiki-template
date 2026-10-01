@@ -19,7 +19,7 @@ No options: validate the vault and show guidance; no files or apps are changed.
   --timezone IANA          Date/time for --daily (otherwise system timezone)
   --global-commands        Register optional Claude commands / Codex legacy prompts
   --install-obsidian       On macOS, install missing Obsidian via Homebrew
-  --open-obsidian          Try to open this vault in installed Obsidian
+  --open-obsidian          Open Obsidian vault manager; select this folder there
   --dry-run                Show selected effects without writing/installing/opening
   --unlink                 Remove only global entries owned by this vault
   --help                   Show this help
@@ -129,35 +129,46 @@ fi
 if (( INSTALL_OBSIDIAN || OPEN_OBSIDIAN )); then
   if (( DRY_RUN )); then
     (( INSTALL_OBSIDIAN )) && echo "Would check Obsidian; macOS + brew may install it (outside vault)."
-    (( OPEN_OBSIDIAN )) && echo "Would try opening this vault in installed Obsidian."
+    (( OPEN_OBSIDIAN )) && echo "Would open Obsidian vault manager; select folder: $VAULT_ROOT"
   else
     case "$(uname -s)" in
       Darwin)
-        if (( INSTALL_OBSIDIAN )) && [[ ! -d /Applications/Obsidian.app ]]; then
+        obsidian_app=""
+        find_obsidian_app() {
+          obsidian_app=""
+          for candidate in /Applications/Obsidian.app "$HOME/Applications/Obsidian.app"; do
+            if [[ -d "$candidate" ]]; then obsidian_app="$candidate"; break; fi
+          done
+        }
+        find_obsidian_app
+        if (( INSTALL_OBSIDIAN )) && [[ -z "$obsidian_app" ]]; then
           if command -v brew >/dev/null 2>&1; then
             brew install --cask obsidian
+            find_obsidian_app
           else
-            echo "Homebrew unavailable. Install manually: https://obsidian.md/download"
+            echo "Homebrew unavailable. Use the official installer: https://obsidian.md/download"
           fi
         fi
         if (( OPEN_OBSIDIAN )); then
-          if [[ -d /Applications/Obsidian.app ]]; then
+          if [[ -n "$obsidian_app" ]]; then
+            echo "Select Open folder as vault in Obsidian: $VAULT_ROOT"
             if [[ "${OBSIDIAN_OPEN_SKIP:-0}" == "1" ]]; then
               echo "Opening skipped by OBSIDIAN_OPEN_SKIP."
             else
-              open -a Obsidian "$VAULT_ROOT"
+              open -a "$obsidian_app" 'obsidian://choose-vault'
             fi
           else
-            echo "Obsidian not detected. Install or open manually: https://obsidian.md/download"
+            echo "Obsidian not detected in Applications folders. Use its known path or official installer: https://obsidian.md/download"
           fi
         fi ;;
       Linux)
         (( INSTALL_OBSIDIAN )) && echo "Install manually: https://obsidian.md/download"
         if (( OPEN_OBSIDIAN )); then
           if command -v obsidian >/dev/null 2>&1; then
-            if [[ "${OBSIDIAN_OPEN_SKIP:-0}" != "1" ]]; then obsidian "$VAULT_ROOT" >/dev/null 2>&1 & fi
+            echo "Select Open folder as vault in Obsidian: $VAULT_ROOT"
+            if [[ "${OBSIDIAN_OPEN_SKIP:-0}" != "1" ]]; then obsidian 'obsidian://choose-vault' >/dev/null 2>&1 & fi
           else
-            echo "No obsidian command. On WSL, open the vault from the Windows host."
+            echo "No obsidian command. If using WSL, convert this path with wslpath -w and open it on the Windows host; see SETUP.md."
           fi
         fi ;;
       *) echo "Install/open manually: https://obsidian.md/download" ;;

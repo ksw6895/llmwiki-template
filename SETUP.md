@@ -10,10 +10,24 @@
 
 아래는 파일 작업을 맡은 에이전트의 준비 방법 또는 기술 질문에 대한 참고입니다. 개인용 사본은 GitHub의 **Use this template**으로 만들거나 로컬 폴더에 복사할 수 있습니다. 개인 자료를 넣을 원격 저장소는 비공개를 권장합니다. 저장소 URL을 읽는 것만으로 로컬 작업 공간이 준비되지는 않으며, 확인된 도구와 권한의 범위에서 작업합니다.
 
-```sh
-git clone https://github.com/<your-username>/<your-vault>.git ~/Documents/MyVault
-cd ~/Documents/MyVault
-```
+## Windows와 macOS에서 에이전트가 준비하기
+
+Windows 기본 경로는 **native Windows**입니다. 이 위키 때문에 WSL, Git Bash, 개발자 모드, 심링크 권한을 준비시킬 필요는 없습니다. Codex Windows 앱은 기본적으로 PowerShell을 사용하며 WSL은 선택 설정입니다. Claude Code도 native Windows에서 PowerShell을 사용할 수 있습니다. [Codex Windows 문서](https://learn.chatgpt.com/docs/windows/windows-app), [Claude Code 설치 문서](https://code.claude.com/docs/en/setup).
+
+| 실행 환경 | 에이전트의 준비 방법 |
+|---|---|
+| Windows 기본 환경 | 기존 파일 도구나 PowerShell로 폴더·파일을 준비. 설치된 Git이 있으면 사용할 수 있지만 bash 스크립트 실행은 시작 조건이 아님 |
+| macOS | 기존 파일 도구로 준비. 필요하면 아래 bash 도우미를 선택해서 사용 |
+| 이미 Git Bash를 쓰는 환경 | 자연어·파일 도구 경로는 동일. 아래 도우미의 Unix 시간대 파일·유틸리티가 실제 존재하는지 확인 |
+| 이미 WSL을 쓰는 환경 | 선택 경로. Windows Obsidian과 함께 쓰려면 Windows 파일시스템의 vault를 함께 접근하는 방식을 우선 검토 |
+
+에이전트는 정한 위치에 새 사본을 준비합니다. Git이 없다면 지원되는 다운로드·압축 해제 또는 파일 복사 도구를 써도 됩니다. 기존 위키에 적용할 때는 필요한 안내 파일만 비교해 추가하고, 노트·`preferences.md`·사용자 지침·`.obsidian` 설정 전체를 덮어쓰지 않습니다. 새 사본에 포함된 `.obsidian`은 초기 예시 설정입니다.
+
+공백·한글이 있는 절대 경로도 그대로 사용하세요. PowerShell에서는 `Join-Path`, `-LiteralPath`를 쓰고 실행 인수는 따로 전달합니다. 새 Markdown은 UTF-8로 저장하되 기존 파일의 인코딩·줄바꿈은 보존합니다. Windows PowerShell 5.1과 PowerShell 7은 기본 인코딩이 다르므로 기본값에 기대지 마세요. 심링크 대신 아래 실제 파일 진입점을 사용할 수 있습니다. [PowerShell 인코딩 문서](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_character_encoding).
+
+일일 노트를 직접 만들 때는 이미 정한 시간대를 쓰고, 미정이면 시스템 시간대를 밝혀 사용합니다. Windows에서는 `Get-TimeZone`과 `Get-Date` 등 현재 환경의 날짜 도구를 확인하세요. Windows 시간대 ID와 IANA 이름은 같은 문자열이 아니므로 요청한 시간대의 지원 여부와 UTC offset을 확인한 뒤 하나의 기준 시각으로 날짜·생성 시각을 채웁니다. 시스템 시간대를 바꾸거나 `/usr/share/zoneinfo` 존재를 native Windows의 조건으로 삼지 않습니다. 기존 일일 노트는 보존하고 공통 기록 관례를 따릅니다.
+
+WSL 경로 `/mnt/c/...`를 Windows 앱에 그대로 전달하지 않습니다. WSL을 이미 쓰는 경우 `wslpath -w`로 host 경로를 확인하고 Windows 측 도구로 엽니다. Linux 홈의 `\\wsl$` 경로는 앱·도구별 접근이 다를 수 있어 실제 읽기·쓰기를 확인해야 합니다. WSL과 Windows의 에이전트 설정·예약 실행 환경도 따로 확인하세요. native Windows 사용자를 WSL로 전환시킬 필요는 없습니다.
 
 메모·회의록·자료 하나를 정리하는 것은 첫 사용의 한 예입니다. 처음부터 루틴 설정을 요청했다면 첫 기록을 요구하지 않고 그 목적을 바로 처리하세요. 이름과 이메일은 필요하지 않습니다. 사용자가 정한 선호만 `preferences.md`에 남기고, 원본·출처·사용자 내용 보호는 [AGENTS.md](AGENTS.md)를 따릅니다. 기존 위키의 `AGENTS.md`에 프로필이 있다면 재입력시키지 말고 그 값을 참고하세요.
 
@@ -37,6 +51,8 @@ cd ~/Documents/MyVault
 
 ## 선택 스크립트
 
+이 도우미는 macOS/Linux의 bash 환경용이며 기본 사용에는 필요하지 않습니다. `--timezone`은 `/usr/share/zoneinfo`가 있는 환경을 전제로 합니다. native Windows에서는 위의 파일 도구/PowerShell 경로로 준비하고, 전역 명령 등록도 기본 단계로 요구하지 않습니다.
+
 기본 `bash scripts/setup.sh`는 구조를 확인하고 안내만 출력합니다. 기존 노트·워크플로·개인 도구 설정을 변경하지 않습니다. 다음 옵션은 사용자가 선택한 경우에만 실행하세요:
 
 | 옵션 | 효과 |
@@ -45,7 +61,7 @@ cd ~/Documents/MyVault
 | `--timezone Asia/Seoul` | 일일 노트에 사용할 IANA 시간대. 미지정이면 시스템 시간대를 밝히고 사용 |
 | `--global-commands` | 아래 두 전역 폴더에 명령 진입 파일 생성·갱신 |
 | `--install-obsidian` | macOS에서 미설치인 경우 Homebrew 설치 시도. 다른 환경은 수동 설치 안내 |
-| `--open-obsidian` | 설치된 Obsidian에서 이 vault 열기 시도 |
+| `--open-obsidian` | 설치된 Obsidian의 vault manager 열기. 새 폴더 등록 완료를 의미하지 않음 |
 | `--dry-run` | 선택한 작업의 예정 효과만 출력. 파일 생성·설치·앱 실행 없음 |
 | `--unlink` | 이 vault가 소유한 전역 명령만 제거. 다른 실행 옵션과 함께 사용하지 않음 |
 
@@ -59,10 +75,10 @@ bash scripts/setup.sh --daily --timezone Asia/Seoul
 ## 도구별 지원과 선택 명령
 
 - **Codex:** `.agents/skills/wiki/SKILL.md`에서 관련 워크플로를 찾을 수 있습니다. CLI/IDE에서는 `$wiki`로 명시하거나 자연어로 요청할 수 있습니다. [공식 skills 문서](https://learn.chatgpt.com/docs/build-skills).
-- **Claude Code:** `CLAUDE.md`가 `AGENTS.md`를 import합니다. `.claude/skills/wiki`는 공통 스킬 폴더의 상대 심링크입니다. `/wiki`는 선택 진입점이고 기존 `/wiki-setup`도 유지합니다. [공식 skills 문서](https://code.claude.com/docs/en/skills).
-- **다른 에이전트·심링크 미지원 환경:** `AGENTS.md`와 관련 워크플로를 직접 읽으면 됩니다. 스킬이 안 보인다고 기본 사용이 막히지는 않습니다. Windows에서 심링크가 일반 파일로 checkout되면 자연어 경로를 사용하거나 공통 스킬 폴더를 `.claude/skills/wiki` 위치에 복사할 수 있습니다.
+- **Claude Code:** `CLAUDE.md`가 `AGENTS.md`를 import합니다. `.claude/skills/wiki/SKILL.md`는 공통 스킬을 참조하는 작은 실제 파일입니다. `/wiki`는 선택 진입점이고 기존 `/wiki-setup`도 유지합니다. [공식 skills 문서](https://code.claude.com/docs/en/skills).
+- **다른 에이전트:** `AGENTS.md`와 관련 워크플로를 직접 읽으면 됩니다. 스킬이 안 보인다고 기본 사용이 막히지는 않습니다. repo 범위 Claude 스킬과 `/wiki-setup`은 심링크 없이 checkout됩니다.
 
-기존 전역 명령을 계속 쓰려면:
+macOS/Linux bash 환경에서 기존 전역 명령을 계속 쓰려면:
 
 ```sh
 bash scripts/setup.sh --global-commands --dry-run
@@ -89,14 +105,31 @@ vault를 옮겼다면 옛 경로가 적힌 전역 파일을 확인하세요. 가
 
 ## Obsidian과 백업은 선택
 
-[Obsidian](https://obsidian.md/download)에서 이 폴더를 vault로 열 수 있습니다. 기본 Markdown 사용에는 community plugin이 필요하지 않습니다. 노트 쿼리·편집기 내 템플릿·백업 등 원하는 기능이 생겼을 때 해당 플러그인 설정과 문법을 따로 확인하세요.
+사용자가 Obsidian 사용을 요청했다면 **에이전트가 탐지·설치·열기·vault 설정을 맡습니다**. 이미 요청한 작업 범위는 다시 확인시키지 않고, 도구 권한이 부족하거나 사용자가 직접 선택해야 하는 단계만 알립니다. 기본 Markdown 사용에는 community plugin이 필요하지 않습니다.
+
+1. **기존 앱 확인:** macOS는 `/Applications/Obsidian.app`와 `~/Applications/Obsidian.app`, Windows는 `Get-Command Obsidian`과 통상 설치 위치(`$env:LOCALAPPDATA\Obsidian`, `$env:LOCALAPPDATA\Programs\Obsidian`, `$env:ProgramFiles\Obsidian`)의 실행 파일을 확인합니다. 다른 위치를 이미 알려줬다면 그 값을 씁니다. PATH에 없다는 이유만으로 미설치라고 판단하지 않습니다.
+2. **필요할 때 설치:** Windows에 WinGet이 있으면 `winget search`와 `winget show`로 정확한 앱·출처·설치 범위를 확인해 설치할 수 있습니다. macOS에 Homebrew가 있으면 `brew install --cask obsidian`을 사용할 수 있습니다. 이 도구가 없다면 [공식 설치 파일](https://obsidian.md/download)과 지원되는 설치 도구를 사용합니다. Obsidian 설치를 위해 WSL·Git Bash·Homebrew를 먼저 설치할 필요는 없습니다. OS 승인 창이나 라이선스 선택이 필요하면 그 단계만 사용자에게 안내합니다. [Obsidian 설치 문서](https://help.obsidian.md/install), [WinGet 설치 명령](https://learn.microsoft.com/en-us/windows/package-manager/winget/install).
+3. **폴더를 vault로 등록:** 앱을 한 번 실행하면 Windows/macOS의 URI 처리가 등록됩니다. `obsidian://choose-vault`는 vault manager를 엽니다. UI 도구가 있으면 **Open folder as vault**로 정한 절대 경로를 선택하고, UI 도구가 없다면 사용자에게 이 폴더 선택만 부탁합니다. 파일을 복사하거나 앱을 띄운 것만으로 등록 완료라고 보고하지 않습니다. Obsidian 전역 vault 목록 파일을 추측해 편집하지 않습니다. [vault 관리](https://help.obsidian.md/manage-vaults), [URI 문서](https://help.obsidian.md/uri).
+4. **필요한 vault 설정만 확인:** 기존 `.obsidian`이나 별도 config folder를 보존하고, 실행 중인 앱과 설정 파일을 동시에 수정하지 않습니다. 원하는 항목만 UI 또는 확인한 해당 설정 파일에서 변경합니다. Daily Notes를 쓸 경우 **New file location**은 `01-Daily`, 날짜 형식은 `YYYY-MM-DD`로 맞춥니다. `10-Templates`의 `{{datetime}}` 같은 표기는 에이전트용이므로 core Templates/Daily Notes에 그대로 연결하지 않습니다. 편집기 내 템플릿을 원하면 지원되는 `{{date}}`·`{{time}}` 문법으로 별도 템플릿을 준비하고 실제 생성 결과를 확인합니다. 플러그인 목록·기존 단축키·노트를 일괄 초기화하지 않습니다. [config folder](https://help.obsidian.md/configuration-folder), [Daily Notes](https://help.obsidian.md/plugins/daily-notes), [Templates](https://help.obsidian.md/plugins/templates).
+
+이미 등록된 vault의 노트를 열려면 URI의 `path=`에 **기존 노트의 절대 경로**를 percent-encode해 전달할 수 있습니다. `vault=`에는 등록된 vault의 이름/ID를 씁니다. `/`, `\`, 공백, 한글, `&`, `#` 등을 raw 문자열로 붙이지 않습니다. 예를 들어 Windows 에이전트는 등록을 확인한 뒤 다음처럼 열 수 있습니다:
+
+```powershell
+# $VaultPath는 이미 확인한 Windows 절대 경로
+$NotePath = Join-Path $VaultPath 'index.md'
+if (-not (Test-Path -LiteralPath $NotePath -PathType Leaf)) { throw 'Note not found' }
+$Uri = 'obsidian://open?path=' + [Uri]::EscapeDataString($NotePath)
+Start-Process -FilePath $Uri
+```
+
+macOS bash 도우미는 선택 기능입니다. 앱이 시스템 또는 사용자 Applications 폴더에 있으면 vault manager를 열고 선택할 경로를 출력합니다. 새 폴더 등록은 위의 UI 단계로 확인하세요:
 
 ```sh
 bash scripts/setup.sh --install-obsidian --open-obsidian --dry-run
-# 설치와 실행을 원할 때만 --dry-run을 빼고 실행
+# 설치와 실행을 요청한 범위에서만 --dry-run을 빼고 실행
 ```
 
-git은 로컬 이력 관리에 사용할 수 있습니다. 원격 백업을 원한다면 개인용 비공개 저장소와 업로드할 자료 범위를 선택한 뒤 연결하세요. 이 템플릿이나 setup은 자동 commit·push를 수행하지 않습니다. 자동 백업 플러그인 설정도 사용자의 별도 선택입니다.
+동기화와 원격 백업은 Obsidian 준비와 별도 선택입니다. 기존 동기화·플러그인 설정을 보존하고, 새 서비스 로그인·유료 Sync·자동 백업을 묵시적으로 켜지 않습니다. Git은 로컬 이력 관리에 사용할 수 있습니다. 원격 백업을 원한다면 개인용 비공개 저장소와 업로드할 자료 범위를 선택한 뒤 연결하세요. 이 템플릿이나 setup은 자동 commit·push를 수행하지 않습니다.
 
 ## 구성과 기여 참고
 
